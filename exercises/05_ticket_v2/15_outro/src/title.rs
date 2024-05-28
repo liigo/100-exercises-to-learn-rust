@@ -2,7 +2,46 @@
 //   enforcing that the title is not empty and is not longer than 50 characters.
 //   Implement the traits required to make the tests pass too.
 
+use std::fmt::Display;
+
+#[derive(Debug, PartialEq, Clone)] // liigo: Error.unwrap()需要Debug，外部父容器需要PartialEq/Clone
 pub struct TicketTitle(String);
+
+#[derive(Debug)]
+// liigo: 实现Display需要公开此类型(type Error =)
+pub enum TitleError {
+    Empty,
+    TooLong,
+}
+
+impl Display for TitleError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TitleError::Empty => write!(f, "The title cannot be empty"),
+            TitleError::TooLong => write!(f, "The title cannot be longer than 50 bytes"),
+        }
+    }
+}
+
+impl TryFrom<&str> for TicketTitle {
+    type Error = TitleError;
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        if value.len() == 0 {
+            Err(TitleError::Empty)
+        } else if value.len() > 50 {
+            Err(TitleError::TooLong)
+        } else {
+            Ok(TicketTitle(value.to_string()))
+        }
+    }
+}
+
+impl TryFrom<String> for TicketTitle {
+    type Error = TitleError;
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        TryFrom::<&str>::try_from(&value)
+    }
+}
 
 #[cfg(test)]
 mod tests {

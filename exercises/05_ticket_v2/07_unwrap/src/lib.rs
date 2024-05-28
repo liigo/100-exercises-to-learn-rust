@@ -2,7 +2,19 @@
 //   When the description is invalid, instead, it should use a default description:
 //   "Description not provided".
 fn easy_ticket(title: String, description: String, status: Status) -> Ticket {
-    todo!()
+    // FIXME(liigo): 
+    // 三处不完美：1重复clone，2根据String识别错误类型挺别扭，3没在第一时间想到unwrap_or_else()
+    // 我看了官方答案也存在前两个问题。unwrap_or_else()和答案里的直接match代码量差不多。
+    let ticket = Ticket::new(title.clone(), description.clone(), status.clone());
+    ticket.unwrap_or_else(|err| {
+        if err.starts_with("Title") {
+            panic!("{err}");
+        } else if err.starts_with("Description") {
+            return easy_ticket(title, "Description not provided".to_string(), status);
+        } else {
+            unreachable!("--")
+        }
+    })
 }
 
 #[derive(Debug, PartialEq, Clone)]

@@ -1,10 +1,35 @@
 // TODO: Implement `TryFrom<String>` and `TryFrom<&str>` for the `Status` enum.
 //  The parsing should be case-insensitive.
 
+#[derive(Debug, PartialEq, Clone)] // liigo: Error.unwrap()需要Debug, ==需要PartialEq
 pub enum Status {
     ToDo,
     InProgress,
     Done,
+}
+
+#[derive(Debug)] // unwrap需要Debug：error[E0277]: `StatusError` doesn't implement `Debug`
+// liigo: 实现Display需要公开此类型(type Error =)
+pub struct StatusError;
+
+impl TryFrom<&str> for Status {
+    type Error = StatusError;
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        let status = value.to_lowercase();
+        match status.as_str() {
+            "todo" => Ok(Self::ToDo),
+            "inprogress" => Ok(Self::InProgress),
+            "done" => Ok(Self::Done),
+            _ => Err(StatusError),            
+        }
+    }
+}
+
+impl TryFrom<String> for Status {
+    type Error = StatusError;
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        TryFrom::<&str>::try_from(&value)
+    }
 }
 
 #[cfg(test)]

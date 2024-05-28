@@ -1,4 +1,6 @@
-use crate::status::Status;
+use std::error::Error;
+
+use crate::status::{Status, ParseStatusError};
 
 // We've seen how to declare modules in one of the earliest exercises, but
 // we haven't seen how to extract them into separate files.
@@ -23,6 +25,13 @@ pub enum TicketNewError {
     DescriptionCannotBeEmpty,
     #[error("Description cannot be longer than 500 bytes")]
     DescriptionTooLong,
+
+    // liigo: 下面的写法是看了课程才会的：implementing source using thiserror
+    // see https://rust-exercises.com/05_ticket_v2/14_source
+    #[error("{source}")]
+    StatusError{
+        source: ParseStatusError,
+    },
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -48,6 +57,10 @@ impl Ticket {
         }
 
         // TODO: Parse the status string into a `Status` enum.
+        let status = Status::try_from(status.clone()).map_err(|err| {
+            TicketNewError::StatusError { source: err }
+        })?;
+        // liigo: map_err() + ? 我这个写法还是很简洁的
 
         Ok(Ticket {
             title,

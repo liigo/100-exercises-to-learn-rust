@@ -2,7 +2,50 @@
 //   enforcing that the description is not empty and is not longer than 500 bytes.
 //   Implement the traits required to make the tests pass too.
 
+use std::fmt::Display;
+
+#[derive(Debug, PartialEq, Clone)] // liigo: Error.unwrap()需要Debug, 外部父容器需要PartialEq,Clone
 pub struct TicketDescription(String);
+
+#[derive(Debug)]
+// liigo: 实现Display需要公开此类型(type Error =)
+pub enum DescriptionError {
+    Empty,
+    TooLong,
+}
+
+// liigo: 根据编译器报错知道需要为之实现std::fmt::Display
+// error[E0599]: `DescriptionError` doesn't implement `std::fmt::Display`
+impl Display for DescriptionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            DescriptionError::Empty => write!(f, "The description cannot be empty"),
+            DescriptionError::TooLong => write!(f, "The description cannot be longer than 500 bytes"),
+        }
+    }
+}
+
+impl TryFrom<&str> for TicketDescription {
+    type Error = DescriptionError;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        if value.len() == 0 {
+            Err(DescriptionError::Empty)
+        } else if value.len() > 500 {
+            Err(DescriptionError::TooLong)
+        } else {
+            Ok(TicketDescription(value.to_string()))
+        }
+    }
+}
+
+impl TryFrom<String> for TicketDescription {
+    type Error = DescriptionError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        TryFrom::<&str>::try_from(&value) // 注意 ::<&str>::的写法
+    }
+}
 
 #[cfg(test)]
 mod tests {

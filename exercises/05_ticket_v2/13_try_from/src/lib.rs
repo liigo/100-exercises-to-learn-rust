@@ -8,10 +8,45 @@ enum Status {
     Done,
 }
 
+#[derive(Debug)] // Liigo: this is required by Result::unwrap()
+struct StatusError;
+
+impl TryFrom<&str> for Status {
+    type Error = StatusError;
+
+    fn try_from(value: &str) -> Result<Status, Self::Error> {
+        // 官方答案是先得到全小写字符然后match（需要创建String对象，多了内存分配）
+        // let value = value.to_lowercase();
+        if value.eq_ignore_ascii_case("ToDo") {
+            return Ok(Status::ToDo);
+        } else if value.eq_ignore_ascii_case("InProgress") {
+            return Ok(Status::InProgress);
+        } else if value.eq_ignore_ascii_case("Done") {
+            return Ok(Status::Done);
+        } else {
+            return Err(StatusError);
+        }
+    }
+}
+
+impl TryFrom<String> for Status {
+    type Error = StatusError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        TryFrom::<&str>::try_from(&value)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::convert::TryFrom;
+
+    #[test] // liigo added this test
+    fn test_try_from_bad_string() {
+        let status = Status::try_from("bad stirng");
+        assert!(status.is_err());
+    }
 
     #[test]
     fn test_try_from_string() {

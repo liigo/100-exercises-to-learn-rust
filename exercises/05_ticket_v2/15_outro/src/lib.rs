@@ -3,6 +3,8 @@ mod description;
 mod status;
 mod title;
 
+// liigo: 此练习花费了较多时间，但难度不大，根据编译提示处理即可。
+
 // A common pattern in Rust is to split code into multiple (private) modules
 // and then re-export the public parts of those modules at the root of the crate.
 //
