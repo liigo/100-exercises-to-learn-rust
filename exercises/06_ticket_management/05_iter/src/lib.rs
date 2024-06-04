@@ -6,6 +6,23 @@ pub struct TicketStore {
     tickets: Vec<Ticket>,
 }
 
+pub struct TicketStoreIter<'a> {
+    store: &'a TicketStore,
+    index: usize,
+}
+
+impl<'a> Iterator for TicketStoreIter<'a> {
+    type Item = &'a Ticket;
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.index < self.store.tickets.len() {
+            self.index += 1;
+            Some(&self.store.tickets[self.index - 1])
+        } else {
+            None
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Ticket {
     title: TicketTitle,
@@ -29,6 +46,13 @@ impl TicketStore {
 
     pub fn add_ticket(&mut self, ticket: Ticket) {
         self.tickets.push(ticket);
+    }
+
+    pub fn iter(&self) -> TicketStoreIter {
+        TicketStoreIter {
+            store: &self,
+            index: 0,
+        }
     }
 }
 

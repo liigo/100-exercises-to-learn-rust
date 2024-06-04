@@ -1,9 +1,16 @@
 // TODO: Flesh out the `WeekTemperatures` struct and its method implementations to pass the tests.
 
+use std::collections::HashMap;
+
 pub struct WeekTemperatures {
-    // TODO
+    // liigo: i know they want me to use array, but HashMap is better here :)
+    // 官方答案里用match Weekday得到数组index，感觉很傻，代码也不简洁。
+    // 我第一时间想到用std::mem::discriminant(Weekday)获得索引，但证实不可行（该值是未公开的）。
+    // `std::intrinsics::discriminant_value` is nightly only.
+    temperatures: HashMap<Weekday, i32>,
 }
 
+#[derive(Eq, Hash, PartialEq)] // HashMap need this
 pub enum Weekday {
     Monday,
     Tuesday,
@@ -16,15 +23,17 @@ pub enum Weekday {
 
 impl WeekTemperatures {
     pub fn new() -> Self {
-        todo!()
+        WeekTemperatures {
+            temperatures: HashMap::new()
+        }
     }
 
     pub fn get_temperature(&self, day: Weekday) -> Option<i32> {
-        todo!()
+        self.temperatures.get(&day).map(|t| *t)
     }
 
     pub fn set_temperature(&mut self, day: Weekday, temperature: i32) {
-        todo!()
+        self.temperatures.insert(day, temperature);
     }
 }
 

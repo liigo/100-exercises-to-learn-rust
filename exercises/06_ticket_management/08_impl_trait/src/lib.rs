@@ -31,6 +31,14 @@ impl TicketStore {
     pub fn add_ticket(&mut self, ticket: Ticket) {
         self.tickets.push(ticket);
     }
+
+    // liigo: 我一开始写成 impl Iterator<&Ticket>，编译不过
+    // 看编译错误也不知道怎么改：
+    //   error[E0107]: trait takes 0 generic arguments but 1 generic argument was supplied
+    // 看了标准答案才知道要写成 impl Iterator<Item = &Ticket>，也就是加上`Item=`。Iterator::Item是关联类型参数。
+    pub fn in_progress(&self) -> impl Iterator<Item = &Ticket> {
+        self.tickets.iter().filter(|t| t.status == Status::InProgress)
+    }
 }
 
 #[cfg(test)]

@@ -10,6 +10,35 @@ pub struct TicketStore {
     tickets: Vec<Ticket>,
 }
 
+pub struct TicketStoreIter {
+    store: TicketStore,
+    index: usize,
+}
+
+impl IntoIterator for TicketStore {
+    type Item = Ticket;
+    type IntoIter = TicketStoreIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        TicketStoreIter {
+            store: self,
+            index: 0,
+        }
+    }
+}
+
+impl Iterator for TicketStoreIter {
+    type Item = Ticket;
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.index < self.store.tickets.len() {
+            self.index += 1;
+            Some(self.store.tickets[self.index - 1].clone())
+        } else {
+            None
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Ticket {
     pub title: TicketTitle,

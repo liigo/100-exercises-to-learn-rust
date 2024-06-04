@@ -4,6 +4,7 @@
 //  Implement additional traits on `TicketId` if needed.
 
 use std::collections::BTreeMap;
+use std::collections::btree_map;
 use std::ops::{Index, IndexMut};
 use ticket_fields::{TicketDescription, TicketTitle};
 
@@ -13,7 +14,28 @@ pub struct TicketStore {
     counter: u64,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct TicketStoreIter<'a> {
+    inner: btree_map::Iter<'a, TicketId, Ticket>,
+}
+
+impl<'a> IntoIterator for &'a TicketStore {
+    type Item = &'a Ticket;
+    type IntoIter = TicketStoreIter<'a>;
+    fn into_iter(self) -> Self::IntoIter {
+        TicketStoreIter {
+            inner: self.tickets.iter(),
+        }
+    }
+}
+
+impl<'a> Iterator for TicketStoreIter<'a> {
+    type Item = &'a Ticket;
+    fn next(&mut self) -> Option<Self::Item> {
+        self.inner.next().map(|(k,v)|v)
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Ord, PartialOrd)]
 pub struct TicketId(u64);
 
 #[derive(Clone, Debug, PartialEq)]
@@ -40,7 +62,7 @@ pub enum Status {
 impl TicketStore {
     pub fn new() -> Self {
         Self {
-            tickets: todo!(),
+            tickets: BTreeMap::new(),
             counter: 0,
         }
     }
@@ -54,16 +76,17 @@ impl TicketStore {
             description: ticket.description,
             status: Status::ToDo,
         };
-        todo!();
+        self.tickets.insert(id, ticket);
         id
     }
 
     pub fn get(&self, id: TicketId) -> Option<&Ticket> {
-        todo!()
+        self.tickets.iter().find(|&(k,_v)| *k==id).map(|(_k,v)| v)
     }
 
     pub fn get_mut(&mut self, id: TicketId) -> Option<&mut Ticket> {
-        todo!()
+        // liigo: 写成find(|&(k,_v)|)提示move _v，暂不理解
+        self.tickets.iter_mut().find(|(k,_v)| **k==id).map(|(_k,v)| v)
     }
 }
 
