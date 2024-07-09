@@ -7,7 +7,10 @@ use without_channels::store::TicketStore;
 
 #[test]
 fn works() {
-    let store = todo!();
+    // wox, 没想到还能改tests代码，前面可没有这个规矩。
+    // 这个题我是看了答案的。没看答案前一直在store.rs里折腾代码。
+    //let store = TicketStore::new();
+    let store = Arc::new(RwLock::new(TicketStore::new()));
 
     let store1 = store.clone();
     let client1 = spawn(move || {
